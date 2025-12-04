@@ -11,6 +11,16 @@ from fastapi.responses import PlainTextResponse
 
 app = FastAPI()
 
+INPUT_FILE = "/srv/nfs/compute/home/viyauser1/log_output.csv"
+OUTPUT_FILE = "/srv/nfs/compute/home/viyauser1/hourly_counts.csv"
+JOB_DEF_ID = "bde3569c-f025-4955-b24e-8a88477083f5"
+SAS_SERVER = "http://trck1076843.trc.sas.com"
+CLIENT_TOKEN = "eaa38662-5188-11f0-8610-0610c8c9ea11"
+USERNAME = "viyauser1"
+PASSWORD = "viyauser1"
+CLIENT_ID = "python_c"
+CLIENT_SECRET = "python_s"
+
 # Configure logging
 logging.basicConfig(filename="record.log", level=logging.INFO, format="%(asctime)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -27,22 +37,22 @@ async def get_env_file():
 # Endpoint to update hour_count
 @app.post("/hourUpdate")
 async def record_json():
-    input_file = "/srv/nfs/compute/home/viyauser1/log_output.csv"
-    output_file = "/srv/nfs/compute/home/viyauser1/hourly_counts.csv"
-    hour_count(input_file, output_file)
+    INPUT_FILE = "/srv/nfs/compute/home/viyauser1/log_output.csv"
+    OUTPUT_FILE = "/srv/nfs/compute/home/viyauser1/hourly_counts.csv"
+    hour_count(INPUT_FILE, OUTPUT_FILE)
     
-    job_def_id = "bde3569c-f025-4955-b24e-8a88477083f5"
-    sas_server = "http://trck1076843.trc.sas.com"
-    client_token = "eaa38662-5188-11f0-8610-0610c8c9ea11"
-    username = "viyauser1"
-    password = "viyauser1"
-    client_id = "python_c"
-    client_secret = "python_s"
+    JOB_DEF_ID = "bde3569c-f025-4955-b24e-8a88477083f5"
+    SAS_SERVER = "http://trck1076843.trc.sas.com"
+    CLIENT_TOKEN = "eaa38662-5188-11f0-8610-0610c8c9ea11"
+    USERNAME = "viyauser1"
+    PASSWORD = "viyauser1"
+    CLIENT_ID = "python_c"
+    CLIENT_SECRET = "python_s"
     
-    client_access_token = get_client_token(sas_server, client_token, client_id)
-    register_client(sas_server, client_id, client_secret, client_access_token)
-    access_token = get_access_token(sas_server, client_id, client_secret, username, password)
-    execute_job(job_def_id, sas_server, access_token)
+    client_access_token = get_client_token(SAS_SERVER, CLIENT_TOKEN, CLIENT_ID)
+    register_client(SAS_SERVER, CLIENT_ID, CLIENT_SECRET, client_access_token)
+    access_token = get_access_token(SAS_SERVER, CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD)
+    execute_job(JOB_DEF_ID, SAS_SERVER, access_token)
 
 # Endpoint to record JSON object to logs
 @app.post("/record")
@@ -51,22 +61,22 @@ async def record_json(request: Request):
     logging.info(json.dumps(data))
     
     log_to_csv()
-    input_file = "/srv/nfs/compute/home/viyauser1/log_output.csv"
-    output_file = "/srv/nfs/compute/home/viyauser1/hourly_counts.csv"
-    hour_count(input_file, output_file)
+    INPUT_FILE = "/srv/nfs/compute/home/viyauser1/log_output.csv"
+    OUTPUT_FILE = "/srv/nfs/compute/home/viyauser1/hourly_counts.csv"
+    hour_count(INPUT_FILE, OUTPUT_FILE)
     
-    job_def_id = "bde3569c-f025-4955-b24e-8a88477083f5"
-    sas_server = "http://trck1076843.trc.sas.com"
-    client_token = "eaa38662-5188-11f0-8610-0610c8c9ea11"
-    username = "viyauser1"
-    password = "viyauser1"
-    client_id = "python_c"
-    client_secret = "python_s"
+    JOB_DEF_ID = "bde3569c-f025-4955-b24e-8a88477083f5"
+    SAS_SERVER = "http://trck1076843.trc.sas.com"
+    CLIENT_TOKEN = "eaa38662-5188-11f0-8610-0610c8c9ea11"
+    USERNAME = "viyauser1"
+    PASSWORD = "viyauser1"
+    CLIENT_ID = "python_c"
+    CLIENT_SECRET = "python_s"
     
-    client_access_token = get_client_token(sas_server, client_token, client_id)
-    register_client(sas_server, client_id, client_secret, client_access_token)
-    access_token = get_access_token(sas_server, client_id, client_secret, username, password)
-    execute_job(job_def_id, sas_server, access_token)
+    client_access_token = get_client_token(SAS_SERVER, CLIENT_TOKEN, CLIENT_ID)
+    register_client(SAS_SERVER, CLIENT_ID, CLIENT_SECRET, client_access_token)
+    access_token = get_access_token(SAS_SERVER, CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD)
+    execute_job(JOB_DEF_ID, SAS_SERVER, access_token)
     return {"status": "recorded", "data": data}
 
 def log_to_csv():
@@ -90,13 +100,13 @@ def log_to_csv():
         writer.writerow(["timestamp", "user", "namespace_path"])
         writer.writerows(entries)
 
-def execute_job(job_def_id, sas_server, access_token):
+def execute_job(JOB_DEF_ID, SAS_SERVER, access_token):
 
-    url = sas_server + "/jobExecution/jobs"
+    url = SAS_SERVER + "/jobExecution/jobs"
 
     payload={"name": "auto_k8s_info log update execution",
             "description": "Execution of auto_k8s_info log update",
-            "jobDefinitionUri": "/jobDefinitions/definitions/" + job_def_id
+            "jobDefinitionUri": "/jobDefinitions/definitions/" + JOB_DEF_ID
             }
 
     headers = {
@@ -106,9 +116,9 @@ def execute_job(job_def_id, sas_server, access_token):
 
     response = requests.request("POST", url, headers=headers, data=json.dumps(payload), verify=False).json()
 
-def hour_count(input_file, output_file):
+def hour_count(INPUT_FILE, OUTPUT_FILE):
     # Read the CSV and parse timestamp
-    df = pd.read_csv(input_file, parse_dates=["timestamp"])
+    df = pd.read_csv(INPUT_FILE, parse_dates=["timestamp"])
 
     # Round timestamps down to the start of the hour
     df["hour"] = df["timestamp"].dt.floor("h")
@@ -128,29 +138,29 @@ def hour_count(input_file, output_file):
     result_df["count"] = result_df["hour"].map(hourly_counts).fillna(0).astype(int)
 
     # Save to CSV
-    result_df.to_csv(output_file, index=False)
+    result_df.to_csv(OUTPUT_FILE, index=False)
 
-def get_client_token(sas_server, client_token, client_id):
-  url = sas_server + "/SASLogon/oauth/clients/consul?callback=false&serviceId=" + client_id
+def get_client_token(SAS_SERVER, CLIENT_TOKEN, CLIENT_ID):
+  url = SAS_SERVER + "/SASLogon/oauth/clients/consul?callback=false&serviceId=" + CLIENT_ID
   payload = {}
   headers = {
-    "X-Consul-Token": client_token
+    "X-Consul-Token": CLIENT_TOKEN
   }
   response = requests.request("POST", url, headers=headers, data = payload, verify=False).json()
   client_access_token = response["access_token"]
   print(f"client_access_token: {client_access_token}")
   return client_access_token
 
-def register_client(sas_server, client_id, client_secret, client_access_token):
+def register_client(SAS_SERVER, CLIENT_ID, CLIENT_SECRET, client_access_token):
 
-  url = sas_server + "/SASLogon/oauth/clients"
+  url = SAS_SERVER + "/SASLogon/oauth/clients"
 
-  payload = {"client_id": client_id, 
-            "client_secret": client_secret,
+  payload = {"CLIENT_ID": CLIENT_ID, 
+            "CLIENT_SECRET": CLIENT_SECRET,
             "scope": ["SASAdministrators", "uaa.admin"], 
             "resource_ids": "none", 
             "authorities": ["uaa.none"], 
-            "authorized_grant_types": ["password"],
+            "authorized_grant_types": ["PASSWORD"],
             "access_token_validity": 36000}
 
   headers = {
@@ -163,18 +173,18 @@ def register_client(sas_server, client_id, client_secret, client_access_token):
 
 ## Get final token for further calls
 
-def get_access_token(sas_server, client_id, client_secret, username, password):
-  url = sas_server + "/SASLogon/oauth/token"
+def get_access_token(SAS_SERVER, CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD):
+  url = SAS_SERVER + "/SASLogon/oauth/token"
 
   data = {
-      'grant_type': 'password',
-      'username': username,
-      'password': password
+      'grant_type': 'PASSWORD',
+      'USERNAME': USERNAME,
+      'PASSWORD': PASSWORD
   }
 
   headers = {'Accept': 'application/json'}
 
-  response = requests.post(url, headers=headers, data=data, auth=(client_id, client_secret), verify=False).json()
+  response = requests.post(url, headers=headers, data=data, auth=(CLIENT_ID, CLIENT_SECRET), verify=False).json()
 
   access_token = response["access_token"]
   print(f"access_token: {access_token}")
